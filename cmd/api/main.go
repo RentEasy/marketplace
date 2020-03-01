@@ -212,12 +212,36 @@ func executeQuery(query string, schema graphql.Schema) *graphql.Result {
 
 var db database.Database
 
+type reqBody struct {
+	Query         string
+	OperationName string
+	Variables     interface{}
+}
+
 func main() {
 	db = database.SetupDatabase()
 
 	http.HandleFunc("/property", func(w http.ResponseWriter, r *http.Request) {
-		result := executeQuery(r.URL.Query().Get("query"), schema)
+		if r.Body == nil {
+			http.Error(w, "No query data", 400)
+			return
+		}
+
+		var rBody reqBody
+		err := json.NewDecoder(r.Body).Decode(&rBody)
+		if err != nil {
+			http.Error(w, "Error parsing JSON request body", 400)
+		}
+
+		result := executeQuery(rBody.Query, schema)
 		json.NewEncoder(w).Encode(result)
+		//input, err := ioutil.ReadAll(r.Body)
+		//if err != nil {
+		//	json.NewEncoder(w).Encode(errors.New("Post body error"))
+		//	return
+		//}
+		//result := executeQuery(string(input), schema)
+		//json.NewEncoder(w).Encode(result)
 	})
 
 	fmt.Println("Server is running on port 8080")
