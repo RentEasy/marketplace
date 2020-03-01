@@ -1,10 +1,10 @@
 package main
 
 import (
-	"encoding/json"
 	"errors"
 	"fmt"
 	"github.com/graphql-go/graphql"
+	"github.com/graphql-go/handler"
 	"github.com/renteasy/marketplace/internal/database"
 	"net/http"
 )
@@ -199,51 +199,17 @@ var schema, _ = graphql.NewSchema(
 	},
 )
 
-func executeQuery(query string, schema graphql.Schema) *graphql.Result {
-	result := graphql.Do(graphql.Params{
-		Schema:        schema,
-		RequestString: query,
-	})
-	if len(result.Errors) > 0 {
-		fmt.Printf("errors: %v", result.Errors)
-	}
-	return result
-}
-
 var db database.Database
-
-type reqBody struct {
-	Query         string
-	OperationName string
-	Variables     interface{}
-}
 
 func main() {
 	db = database.SetupDatabase()
 
-	http.HandleFunc("/property", func(w http.ResponseWriter, r *http.Request) {
-		if r.Body == nil {
-			http.Error(w, "No query data", 400)
-			return
-		}
-
-		var rBody reqBody
-		err := json.NewDecoder(r.Body).Decode(&rBody)
-		if err != nil {
-			http.Error(w, "Error parsing JSON request body", 400)
-		}
-
-		result := executeQuery(rBody.Query, schema)
-		json.NewEncoder(w).Encode(result)
-		//input, err := ioutil.ReadAll(r.Body)
-		//if err != nil {
-		//	json.NewEncoder(w).Encode(errors.New("Post body error"))
-		//	return
-		//}
-		//result := executeQuery(string(input), schema)
-		//json.NewEncoder(w).Encode(result)
+	h := handler.New(&handler.Config{
+		Schema: &schema,
+		Pretty: true,
 	})
 
+	http.Handle("/graphql", h)
 	fmt.Println("Server is running on port 8080")
 	http.ListenAndServe(":8080", nil)
 }
