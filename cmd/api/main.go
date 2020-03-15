@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"github.com/graphql-go/graphql"
+	"github.com/graphql-go/graphql/gqlerrors"
 	"github.com/graphql-go/handler"
 	"github.com/renteasy/marketplace/internal/database"
 	"net/http"
@@ -64,6 +65,9 @@ func main() {
 	h := handler.New(&handler.Config{
 		Schema: &schema,
 		Pretty: true,
+		FormatErrorFn: func(err error) gqlerrors.FormattedError {
+			return gqlerrors.FormatError(err)
+		},
 	})
 
 	http.Handle("/graphql", h)

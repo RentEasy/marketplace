@@ -114,7 +114,7 @@ var rentalRegister = GraphQLType{
 	},
 	MutationFields: graphql.Fields{
 		"createRental": &graphql.Field{
-			Type:        propertyType,
+			Type:        rentalType,
 			Description: "Create a new Rental",
 			Args: graphql.FieldConfigArgument{
 				// Property Values
@@ -142,7 +142,7 @@ var rentalRegister = GraphQLType{
 					Type: graphql.String,
 				},
 				"sqft": &graphql.ArgumentConfig{
-					Type: graphql.String,
+					Type: graphql.Int,
 				},
 				"bedrooms": &graphql.ArgumentConfig{
 					Type: graphql.NewNonNull(graphql.Int),
@@ -174,7 +174,7 @@ var rentalRegister = GraphQLType{
 
 				// Create rental
 				unit, unitOk := params.Args["unit"].(string)
-				sqft, sqftOk := params.Args["sqft"].(string)
+				sqft, sqftOk := params.Args["sqft"].(int)
 				stories, storiesOk := params.Args["stories"].(int)
 
 				rental := database.Rental{
@@ -201,7 +201,7 @@ var rentalRegister = GraphQLType{
 					return nil, err
 				}
 
-				return property, nil
+				return rental, nil
 			},
 		},
 	},
