@@ -12,12 +12,12 @@ type Rental struct {
 	Property   Property
 
 	Unit        string
-	Sqft        string
+	Sqft        int
 	Bedrooms    int
 	Bathrooms   int
 	Stories     int
-	RentDeposit float32
-	RentMonthly float32
+	RentDeposit float64
+	RentMonthly float64
 
 	ListingDate time.Time
 }
@@ -27,7 +27,7 @@ type RentalQueries struct {
 }
 
 func (query *RentalQueries) GetRentalById(id int) (property Rental, err error) {
-	if err := query.db.First(&property, id).Error; err != nil {
+	if err := query.db.Preload("Property").First(&property, id).Error; err != nil {
 		return property, err
 	}
 
@@ -36,7 +36,7 @@ func (query *RentalQueries) GetRentalById(id int) (property Rental, err error) {
 
 func (query *RentalQueries) GetRentals() ([]Rental, error) {
 	var properties []Rental
-	if err := query.db.Find(&properties).Error; err != nil {
+	if err := query.db.Preload("Property").Find(&properties).Error; err != nil {
 		return properties, err
 	}
 

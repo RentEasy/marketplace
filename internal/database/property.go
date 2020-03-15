@@ -52,6 +52,14 @@ func (query *PropertyQueries) GetProperties() ([]Property, error) {
 	return properties, nil
 }
 
+func (query *PropertyQueries) FirstOrCreate(propSearch Property) (property Property, err error) {
+	if err := query.db.Where(&propSearch).FirstOrCreate(&property).Error; err != nil {
+		return property, err
+	}
+
+	return property, nil
+}
+
 func (query *PropertyQueries) CreateProperty(property *Property) error {
 	return query.db.Create(&property).Error
 }

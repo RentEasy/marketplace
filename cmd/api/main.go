@@ -54,7 +54,7 @@ func buildSchema() graphql.SchemaConfig {
 }
 
 func main() {
-	db = database.SetupDatabase("postgres://clone1018@localhost/marketplace?sslmode=disable")
+	db = database.SetupDatabase("postgres://luke@localhost/marketplace?sslmode=disable")
 
 	schema, err := graphql.NewSchema(buildSchema())
 	if err != nil {
